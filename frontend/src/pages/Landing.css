@@ -1,328 +1,388 @@
-body {
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center center;
-  }
-  p{
-      font-family: Patua One , serif;
-  }
-  h1,h2,h3,h4,h5,h6
-  {
-      font-family: Patua One , serif;
-      color: #4c4a4f !important;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Patua+One&family=Red+Hat+Display:wght@400;600&display=swap');
 
-
-
-  h4{
-      text-align: center;
-      padding: 10px 0px 0px 0px;
-      color: #4c4a4f !important;
-      border-top: #3B3C3E;
-
-  }
-  a:link , h5
-  {
-      display: inline;
-      color: #cb4900 !important;
-      text-decoration: underline;
-      text-decoration-color: #cb4900 !important;
-      cursor: pointer;
-  }
-  a:hover , h5:hover{
-    color: #045678 !important;
-      text-decoration-color: #045678 !important;
-      cursor: pointer;
-  }
-
-  table {
-    min-width:  1200px; /* Set a minimum width to ensure scrolling */
-
-    white-space: nowrap; /* Prevent cell content from wrapping */
-  }
-
-  th, td {
-    padding: 10px 20px 15px 20px; /* Add some padding for better readability */
-      font-family: Patua One , serif;
-  }
-
-  .parent-box {
-      position: absolute;
-      width: 83.9vh;
-      height: 68vh;
-      border: none;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #f5f5f2;
-      border-radius: 10px;
-  }
-
-
-  .header-div{
-      background-color: #313131;
-      width:800px;
-      height:80px;
-      display: flex;
-      border-radius: 10px 10px 0px 10px;
-
-  }
-
-  .header-image{
-      width: 275px;
-      border-radius: 10px 0px 0px 0px;
-      height: auto;
-  }
-  .header-text
-  {
-      margin: 0px 0px 0px 0px;
-
-  }
-
-  .header-writing{
-      color: white;
-      font-size: 25px;
-      font-family: Patua One , serif;
-      padding: 20px 0px 0px 70px;
-      margin: 0;
-  }
-
-
-  .center {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh; /* Adjust this value to center the button vertically */
-  }
-
-  .slideshow-div
-  {
-
-      padding: 20px 0px 50px 0px;
-    width:  75%; /* or any desired width */
-    margin: auto;
-
-
-  }
-  .slideshow
-  {
-
-      height: 35vh;
-      width: 65vh;
-      object-fit: cover;
-
-
-  }
-
-  .carousel-control-prev-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cf4411' viewBox='0  0  8  8'%3E%3Cpath d='M5.25  0l-4  4  4  4  1.5-1.5-2.5-2.5  2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
-  }
-
-  .carousel-control-next-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cf4411' viewBox='0  0  8  8'%3E%3Cpath d='M2.75  0l-1.5  1.5  2.5  2.5-2.5  2.5  1.5  1.5  4-4-4-4z'/%3E%3C/svg%3E")!important;
-  }
-
-  .floor-selection-div
-  {
-      display: flex;
-      justify-content: space-evenly;
-
-
-
-  }
-  .label
-  {
-      display: inline;
-      padding: 0.2em 0.6em 0.3em;
-      font-size: 75%;
-      font-weight: 700;
-      line-height: 1;
-      color: #fff;
-      text-align: center;
-      white-space: nowrap;
-      vertical-align: baseline;
-      border-radius: 0.25em;
-
-
-  }
-  .label-avail
-  {
-      background: #14951f none !important;
-      border-color: #14951f !important;
-  }
-  .label-booked {
-      background: #c91908 none !important;
-      border-color: #c91908 !important;
-  }
-
-  .modal-header
-  {
-        background-color:  #f5f5f2 !important;
-  }
-
-
-
-
-
-  .table-container::-webkit-scrollbar-thumb {
-    background: #4c4a4f;/* Makes the track transparent */
-      border-radius: 50px;
-  }
-  .table-container::-webkit-scrollbar {
-
-      height: 8px;
-      background: transparent;
-  }
-
-  .table-container
-  {
-      overflow-x: auto;
-      margin: 10px 0px 20px 0px;
-       border-collapse: separate; /* Ensure that borders are separated */
-      border-spacing:  10px; 
-  }
-
-  .time-slot
-  {
-      background: green;
-      color: white;
-       padding:  5px  20px;
-      border-radius: 10px;
-  }
-    .time-slot.available {
-    background-color: green; /* Green for available */
-    color: white;
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Red Hat Display', sans-serif;
 }
 
-.time-slot.booked {
-    background-color: red; /* Red for booked */
-    color: white;
+.landing-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
-
-  .modal-footer
-  {
-      justify-content: space-between !important;
-       background-color:  #f5f5f2 !important;
-  }
-  .modal-footer-text-div
-  {
-      display: flex;
-      align-items: baseline;
-      padding: 0px 0px 0px 30px;
-       font-family: Patua One , serif;
-
-
-  }
-  .custom-button {
-        background-color: #CB4900; /* Set the background color */
-        color: white; /* Set the text color */
-        padding: 10px 20px; /* Set the padding */
-        font-size: 16px; /* Set the font size */
-        border: none; /* Remove the border */
-        cursor: pointer; /* Add a cursor pointer on hover */
-        border-radius: 5px; /* Add rounded corners */
-      font-family: Patua One , serif;
-      transition: 0.15s
-      }
-
-  .custom-button:hover {
-      background-color: #a0350d; /* Change the background color on hover */
-  }
-  .custom-button:active
-  {
-  }
-
-  .rooms-available-div
-  {
-      display: flex;
-      justify-content: center;
-
-
-  }
-  #room-availability-button
-  {
-      margin: 30px 0px 0px 0px;
-      padding: 10px 60px 10px 60px;
-  }
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1050;
-    display: none;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    outline: 0;
+p {
+  font-family: 'Patua One', serif;
 }
 
-.modal.show {
-    display: block;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Patua One', serif;
+  color: #4c4a4f !important;
 }
 
-.modal-dialog {
-    position: relative;
-    width: auto;
-    margin: 0.5rem;
-    pointer-events: none;
+h4 {
+  text-align: center;
+  padding: 10px 0 0 0;
+  color: #4c4a4f !important;
+  border-top: 1px solid #e9ecef;
+  margin-top: 15px;
 }
 
-.modal.fade .modal-dialog {
-    transition: transform .3s ease-out;
-    transform: translate(0,-50px);
+a:link, h5 {
+  display: inline;
+  color: #cb4900 !important;
+  text-decoration: underline;
+  text-decoration-color: #cb4900 !important;
+  cursor: pointer;
 }
 
-.modal.show .modal-dialog {
-    transform: none;
+a:hover, h5:hover {
+  color: #045678 !important;
+  text-decoration-color: #045678 !important;
+  cursor: pointer;
 }
 
-.modal-dialog-centered {
-    display: flex;
-    align-items: center;
-    min-height: calc(100% - 1rem);
+table {
+  min-width: 1200px;
+  white-space: nowrap;
+  border-collapse: separate;
+  border-spacing: 10px;
+}
+
+th, td {
+  padding: 10px 20px 15px 20px;
+  font-family: 'Patua One', serif;
+}
+
+.parent-box {
+  width: 85%;
+  max-width: 1200px;
+  height: auto;
+  min-height: 80vh;
+  max-height: 90vh;
+  background-color: #f5f5f2;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.header-div {
+  background-color: #313131;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  border-radius: 10px 10px 0 0;
+  flex-shrink: 0;
+}
+
+.header-image {
+  height: 80px;
+  width: auto;
+  border-radius: 10px 0 0 0;
+}
+
+.header-text {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.header-writing {
+  color: white;
+  font-size: 28px;
+  font-family: 'Patua One', serif;
+  padding: 0 0 0 20px;
+  margin: 0;
+}
+
+.slideshow-div {
+  flex: 1;
+  width: 90%;
+  margin: 20px auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel, .carousel-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.slideshow {
+  width: 100%;
+  height: 50vh;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cf4411' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cf4411' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+.floor-selection-div {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 20px auto 30px;
+  width: 70%;
+}
+
+.label {
+  display: inline-block;
+  padding: 0.2em 0.6em 0.3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25em;
+  margin-right: 5px;
+}
+
+.label-avail {
+  background: #14951f none !important;
+  border-color: #14951f !important;
+  width: 20px;
+  height: 20px;
+}
+
+.label-booked {
+  background: #c91908 none !important;
+  border-color: #c91908 !important;
+  width: 20px;
+  height: 20px;
+}
+
+.time-slot {
+  background-color: #14951f !important;
+  color: white !important;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-align: center;
+  margin: 0 3px;
+  font-weight: bold;
+}
+
+.modal-header {
+  background-color: #f5f5f2 !important;
+}
+
+.modal-footer {
+  justify-content: space-between !important;
+  background-color: #f5f5f2 !important;
+}
+
+.modal-footer-text-div {
+  display: flex;
+  align-items: center;
+  padding: 0 0 0 30px;
+  font-family: 'Patua One', serif;
+}
+
+.custom-button {
+  background-color: #CB4900;
+  color: white;
+  padding: 12px 30px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-family: 'Patua One', serif;
+  transition: background-color 0.15s ease;
+  min-width: 160px;
+}
+
+.custom-button:hover {
+  background-color: #a0350d;
+}
+
+.rooms-available-div {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+#room-availability-button {
+  margin: 0;
+  padding: 12px 60px;
+  min-width: 250px;
+  font-size: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-text {
+  margin-top: 15px;
+  font-family: 'Patua One', serif;
+  color: #4c4a4f;
+}
+
+/* Modal Size Adjustments for Desktop */
+.modal-dialog.modal-lg {
+  max-width: 1000px;
 }
 
 .modal-content {
-    position: relative;
-    display: flex;
+  width: 100%;
+  padding: 20px;
+}
+
+.modal-body {
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.modal-header h3 {
+  font-size: 26px;
+}
+
+.modal-body h4 {
+  font-size: 22px;
+  margin-top: 30px;
+}
+
+.modal-body h5 {
+  font-size: 18px;
+  margin: 15px 0;
+}
+
+/* Desktop First Approach - Apply these styles only to desktop and large screens */
+@media (min-width: 1200px) {
+  .parent-box {
+    width: 1000px;
+    height: 800px;
+  }
+  
+  .slideshow {
+    height: 400px;
+  }
+  
+  .custom-button {
+    font-size: 18px;
+    padding: 12px 30px;
+  }
+  
+  .header-writing {
+    font-size: 28px;
+  }
+}
+
+/* Responsive Adjustments for smaller screens */
+@media (max-width: 1200px) {
+  .parent-box {
+    width: 900px;
+    height: 700px;
+  }
+  
+  .slideshow {
+    height: 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .parent-box {
+    width: 90%;
+    height: auto;
+    min-height: 600px;
+    margin: 20px 0;
+  }
+  
+  .slideshow {
+    height: 300px;
+  }
+  
+  table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-writing {
+    font-size: 20px;
+  }
+  
+  .header-image {
+    width: 200px;
+  }
+  
+  .slideshow-div {
+    width: 90%;
+  }
+  
+  .slideshow {
+    height: 250px;
+  }
+  
+  .floor-selection-div {
     flex-direction: column;
-    width: 100%;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.2);
-    border-radius: .3rem;
-    outline: 0;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .floor-selection-div > div {
+    margin-bottom: 10px;
+  }
 }
 
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1040;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000;
+@media (max-width: 576px) {
+  .parent-box {
+    width: 95%;
+  }
+  
+  .slideshow {
+    height: 200px;
+  }
+  
+  .header-image {
+    width: 150px;
+  }
+  
+  .header-writing {
+    font-size: 16px;
+  }
+  
+  .custom-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+  
+  #room-availability-button {
+    padding: 8px 30px;
+    min-width: 200px;
+  }
 }
 
-.modal-backdrop.fade {
-    opacity: 0;
-}
 
 .modal-backdrop.show {
-    opacity: .5;
-}
-.btn-close {
-    box-sizing: content-box;
-    width: 1em;
-    height: 1em;
-    padding: .25em .25em;
-    color: #000;
-    background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3E%3Cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3E%3C/svg%3E") center/1em auto no-repeat;
-    border: 0;
-    border-radius: .25rem;
-    opacity: .5;
-}
-
+    opacity: 0 !important;
+  }
