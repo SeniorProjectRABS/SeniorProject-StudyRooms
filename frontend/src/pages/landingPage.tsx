@@ -14,6 +14,7 @@ const createMockTimeSlots = () => {
 };
 import React, { useState, useEffect } from "react";
 import "./Landing.css";
+import AvailabilityPage from "./AvailabilityPage";
 import { getTimeSlots } from "../services/api";
 
 // Import assets
@@ -28,10 +29,17 @@ interface TimeSlot {
   is_available: boolean;
 }
 
+interface AvailabilityPage {
+  onClose: () => void;
+}
+
 const LandingPage: React.FC = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAvailabilityPageOpen, setIsOpen] = useState<boolean>(false); //here we will
+  // make sure that the button functions to make the availability page open
+  // then we will create the page and make sure all buttons work correctly
 
   useEffect(() => {
     const fetchTimeSlots = async () => {
@@ -207,132 +215,16 @@ const LandingPage: React.FC = () => {
             id="room-availability-button"
             data-bs-toggle="modal"
             data-bs-target="#availabilityModal"
+            onClick={() => setIsOpen(true)}
           >
             Availability
           </button>
-        </div>
-      </div>
-
-      {/* Bootstrap Modal */}
-      <div
-        className="modal fade bd-example-modal-lg"
-        id="availabilityModal"
-        tabIndex={-1}
-        aria-labelledby="availabilityModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3
-                className="modal-title"
-                id="availabilityModalLabel"
-                style={{ fontFamily: "Patua One, serif" }}
-              >
-                Room Availability
-              </h3>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              {/* Floor 1 Rooms */}
-              <h4>Floor 1</h4>
-              <h5 onClick={() => handleRoomClick(1, "1.203")}>EIEAB 1.203</h5>
-              <div className="table-container">
-                <table>
-                  <tbody>
-                    <tr>
-                      {timeSlots.slice(0, 8).map((slot, index) => (
-                        <td key={index} className="time-slot">
-                          {slot.time_label}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <h5 onClick={() => handleRoomClick(1, "1.204")}>EIEAB 1.204</h5>
-              <div className="table-container">
-                <table>
-                  <tbody>
-                    <tr>
-                      {timeSlots.slice(0, 8).map((slot, index) => (
-                        <td key={index} className="time-slot">
-                          {slot.time_label}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Floor 2 Rooms */}
-              <h4>Floor 2</h4>
-              <h5 onClick={() => handleRoomClick(2, "2.203")}>EIEAB 2.203</h5>
-              <div className="table-container">
-                <table>
-                  <tbody>
-                    <tr>
-                      {timeSlots.slice(0, 8).map((slot, index) => (
-                        <td key={index} className="time-slot">
-                          {slot.time_label}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <h5 onClick={() => handleRoomClick(2, "2.204")}>EIEAB 2.204</h5>
-              <div className="table-container">
-                <table>
-                  <tbody>
-                    <tr>
-                      {timeSlots.slice(0, 8).map((slot, index) => (
-                        <td key={index} className="time-slot">
-                          {slot.time_label}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Floor 3 Rooms */}
-              <h4>Floor 3</h4>
-              <h5 onClick={() => handleRoomClick(3, "3.205")}>EIEAB 3.205</h5>
-              <div className="table-container">
-                <table>
-                  <tbody>
-                    <tr>
-                      {timeSlots.slice(0, 8).map((slot, index) => (
-                        <td key={index} className="time-slot">
-                          {slot.time_label}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <div className="modal-footer-text-div">
-                <span className="label label-avail">&nbsp;&nbsp;</span>
-                <p style={{ padding: "5px 10px 0px 5px" }}>Available</p>
-              </div>
-              <button
-                type="button"
-                className="custom-button"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+          {isAvailabilityPageOpen && (
+            <AvailabilityPage
+              onClose={() => setIsOpen(false)}
+              isOpen={isAvailabilityPageOpen}
+            />
+          )}
         </div>
       </div>
     </div>
