@@ -1,0 +1,17 @@
+.popup{
+    background-color: #4C4A4F;
+    position: absolute;
+    width: 60%;
+    height: 70%;
+    margin-right: 86%;
+    margin-top: -23%;
+    z-index: 100;
+    border-radius: 1rem;
+
+}
+
+.close-button{
+    background-color: orange;
+    margin-left: 94.2%;
+    border-top-right-radius: 1rem;
+}

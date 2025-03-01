@@ -23,6 +23,12 @@ html, body {
   align-items: center;
   overflow: hidden;
 }
+.h1{
+  /* background-color: black; */
+  margin-left: -35%;
+  margin-top: 3%;
+  position: absolute;
+}
 
 p {
   font-family: 'Patua One', serif;
@@ -30,7 +36,7 @@ p {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Patua One', serif;
-  color: #4c4a4f !important;
+  color: white !important;
 }
 
 h4 {
@@ -68,26 +74,33 @@ th, td {
 }
 
 .parent-box {
-  width: 85%;
-  max-width: 1200px;
-  height: auto;
-  min-height: 80vh;
-  max-height: 90vh;
-  background-color: #f5f5f2;
+ 
+  max-width: 25%;
+  margin-right: -56%;
+  /* height: auto; */
+  min-height: 49vh;
+  max-height: 48vh;
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
   display: flex;
   flex-direction: column;
+  gap: 0%;
 }
 
+
+
 .header-div {
-  background-color: #313131;
+  /* background-color: #313131; */
   width: 100%;
   height: 80px;
   display: flex;
   border-radius: 10px 10px 0 0;
   flex-shrink: 0;
+  margin-top: -41%;
+  width: 101%;
+  position: absolute;
 }
 
 .header-image {
@@ -96,11 +109,11 @@ th, td {
   border-radius: 10px 0 0 0;
 }
 
-.header-text {
+/* .header-text {
   display: flex;
   align-items: center;
   flex: 1;
-}
+} */
 
 .header-writing {
   color: white;
@@ -143,9 +156,19 @@ th, td {
 
 .floor-selection-div {
   display: flex;
+  flex-direction: column;
+  text-decoration-color: #CB4900;
+  /* background-color: white;s */
+  font-size: 55%;
   justify-content: space-evenly;
-  margin: 20px auto 30px;
+  margin: 20px auto 0px;
   width: 70%;
+}
+
+.buttons{
+  /* background-color: black; */
+  margin: 5px 5px 5px 0px;/* Top: 10px, Right: 15px, Bottom: 20px, Left: 25px */
+  
 }
 
 .label {
@@ -213,6 +236,7 @@ th, td {
   font-family: 'Patua One', serif;
   transition: background-color 0.15s ease;
   min-width: 160px;
+  margin: 2%;
 }
 
 .custom-button:hover {
@@ -226,7 +250,7 @@ th, td {
 }
 
 #room-availability-button {
-  margin: 0;
+  /* margin: -8%; */
   padding: 12px 60px;
   min-width: 250px;
   font-size: 20px;
