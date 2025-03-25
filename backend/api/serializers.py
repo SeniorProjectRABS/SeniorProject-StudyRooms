@@ -26,12 +26,12 @@ def send_reservation_confirmation_email(reservation, confirmation_url, cancellat
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['student_id', 'name', 'email']
+        fields = ['id', 'student_id', 'name', 'email']
 
 class StudyRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyRoom
-        fields = ['room_number', 'floor']
+        fields = ['id', 'room_number', 'floor']
 
 class TimeSlotSerializer(serializers.ModelSerializer):
     start_time = serializers.TimeField(
@@ -64,7 +64,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ['id', 'student', 'study_room', 'timeslots', 'date', 'created_at', 'start_time', 'end_time'] # Include timeslots, start_time, end_time
+        fields = ['id', 'student', 'study_room', 'timeslots', 'date', 'status', 'start_time', 'end_time', 'created_at'] # Include timeslots, start_time, end_time
         read_only_fields = ['start_time', 'end_time', 'created_at'] # start_time/end_time are auto-calculated
 
 
@@ -133,7 +133,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         reservation = Reservation(**validated_data)  # Create unsaved instance
 
         reservation.save()  # Explicitly save now to get an ID
-        print(f"Reservation created and saved, ID: {reservation.id}")  # Debug print
+        print(f"Reservation created and saved, ID: {reservation.id}")
 
         # Set start_time and end_time based on timeslots (before setting timeslots and sending email)
         reservation.start_time = timeslots[0].start_time
@@ -141,13 +141,13 @@ class ReservationSerializer(serializers.ModelSerializer):
         reservation.save()  # Save again to store start_time and end_time
 
         reservation.timeslots.set(timeslots)
-        print(f"Timeslots set successfully, Reservation ID: {reservation.id}")  # Debug print
+        print(f"Timeslots set successfully, Reservation ID: {reservation.id}")
 
         confirmation_url = self.context['request'].build_absolute_uri(
-            reverse('reservation-confirm', kwargs={'reservation_id': reservation.id})
+            reverse('reservation-confirm', kwargs={'pk': reservation.pk})
         )
         cancellation_url = self.context['request'].build_absolute_uri(
-            reverse('reservation-cancel', kwargs={'reservation_id': reservation.id})
+            reverse('reservation-cancel', kwargs={'pk': reservation.pk})
         )
 
         send_reservation_confirmation_email(reservation, confirmation_url, cancellation_url) # Call email function with URLs
@@ -156,14 +156,24 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Updates a Reservation instance including timeslots."""
-        timeslots = validated_data.pop('timeslots', None) # Extract timeslots, if provided
+        timeslots = validated_data.pop('timeslots', None)  # Extract timeslots, if provided
 
         instance.student = validated_data.get('student', instance.student)
         instance.study_room = validated_data.get('study_room', instance.study_room)
         instance.date = validated_data.get('date', instance.date)
+        instance.status = validated_data.get('status', instance.status)
 
-        if timeslots is not None: # Update timeslots only if they are provided in the update request
-            instance.timeslots.set(timeslots) # Update the ManyToMany relationship
+        # Handle timeslots (add/remove)
+        if 'timeslots' in validated_data:
+            timeslots_data = validated_data.pop('timeslots')
+            instance.timeslots.set(timeslots_data)  # This will add/remove as needed
 
-        instance.save() # Model's save method will run clean() for validation
+        # Recalculate times:
+        if instance.timeslots.exists():
+            earliest_start = instance.timeslots.all().order_by('start_time').first().start_time
+            latest_end = instance.timeslots.all().order_by('-end_time').first().end_time
+            instance.start_time = earliest_start
+            instance.end_time = latest_end
+
+        instance.save()
         return instance

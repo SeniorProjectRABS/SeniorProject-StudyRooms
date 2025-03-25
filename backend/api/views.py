@@ -9,15 +9,16 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.db.models import Q  # Import Q objects
+from .utils.auth import NoUpdateDelete
 
 from api.models import StudyRoom, Student, Reservation, TimeSlot
 from api.serializers import StudyRoomSerializer, StudentSerializer, ReservationSerializer, TimeSlotSerializer
 
 @api_view(['GET'])
-def reservation_confirm_view(request, reservation_id):
+def reservation_confirm_view(request, pk):
     """Confirms a reservation."""
     try:
-        reservation = get_object_or_404(Reservation, pk=reservation_id, status='pending')  # Get pending reservation
+        reservation = get_object_or_404(Reservation, pk=pk, status='pending')  # Get pending reservation
         reservation.status = 'confirmed'  # Update status to 'confirmed'
         reservation.save()
 
@@ -35,19 +36,19 @@ def reservation_confirm_view(request, reservation_id):
         send_mail(subject, message, from_email, recipient_list, fail_silently=True)
 
         return Response(
-            {'message': f'Reservation {reservation_id} successfully confirmed!'})  # Confirmation message
+            {'message': f'Reservation {pk} successfully confirmed!'})  # Confirmation message
     except Http404:
         return Response({'error': 'Invalid or already confirmed/cancelled reservation.'},
                         status=400)  # Error if not found or wrong status
 
 @api_view(['GET'])
-def reservation_cancel_view(request, reservation_id):
+def reservation_cancel_view(request, pk):
     """Cancels a reservation."""
     try:
         reservation = get_object_or_404(
             Reservation,
             Q(status='pending') | Q(status='confirmed'),  # Q object for status conditions (positional argument)
-            pk=reservation_id  # pk filter (keyword argument)
+            pk=pk  # pk filter (keyword argument)
         )
         reservation.status = 'cancelled'  # Update status to 'cancelled'
         reservation.save()
@@ -66,7 +67,7 @@ def reservation_cancel_view(request, reservation_id):
         recipient_list = [reservation.student.email]
         send_mail(subject, message, from_email, recipient_list, fail_silently=True)
         return Response(
-            {'message': f'Reservation {reservation_id} successfully cancelled.'})  # Cancellation message
+            {'message': f'Reservation {pk} successfully cancelled.'})  # Cancellation message
     except Http404:
         return Response({'error': 'Invalid or already confirmed/cancelled reservation.'},
                         status=400)  # Error if not found or wrong status
@@ -129,6 +130,7 @@ class StudentViewSet(viewsets.ModelViewSet): # Use ModelViewSet for CRUD operati
 class ReservationViewSet(viewsets.ModelViewSet): # Use ModelViewSet for CRUD operations
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    permission_classes = [NoUpdateDelete]
 
     def get_serializer_context(self):
         """Pass request to serializer for user context if needed."""

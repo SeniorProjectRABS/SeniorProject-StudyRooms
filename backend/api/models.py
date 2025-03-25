@@ -13,7 +13,6 @@ class Student(models.Model):
 
 
 class StudyRoom(models.Model):
-    # Storing room identifiers as strings (e.g., "1.001" for floor 1, room 001)
     room_number = models.CharField(max_length=5, unique=True)
     floor = models.CharField(max_length=5)
 
