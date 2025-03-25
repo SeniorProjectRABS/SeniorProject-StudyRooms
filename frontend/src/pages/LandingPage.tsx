@@ -13,7 +13,7 @@ const createMockTimeSlots = () => {
   });
 };
 import React, { useState, useEffect } from "react";
-import "./Landing.css";
+import "./LandingPage.css";
 import AvailabilityPage from "./AvailabilityPage";
 import { getTimeSlots } from "../services/api";
 
@@ -73,10 +73,10 @@ const LandingPage: React.FC = () => {
     window.location.href = `/floor${floor}`; // Fallback method
   };
 
-  const handleRoomClick = (floor: number, roomNumber: string) => {
-    console.log(`Navigating to room ${roomNumber} on floor ${floor}`);
-    window.location.href = `/room${floor}`; // Fallback method
-  };
+  // const handleRoomClick = (floor: number, roomNumber: string) => {
+  //   console.log(`Navigating to room ${roomNumber} on floor ${floor}`);
+  //   window.location.href = `/room${floor}`; // Fallback method
+  // };
 
   // Bootstrap modal handling
   useEffect(() => {
@@ -225,6 +225,11 @@ const LandingPage: React.FC = () => {
               isOpen={isAvailabilityPageOpen}
             />
           )}
+          {timeSlots.map((timeslot: TimeSlot) => (
+    <div key={timeslot.time_label}> {/* Add a key for each element in the list */}
+        {timeslot.time_label}
+    </div>
+))}
         </div>
       </div>
     </div>
