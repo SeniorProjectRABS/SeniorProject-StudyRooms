@@ -3,6 +3,8 @@ from datetime import datetime
 from django.core.mail import send_mail
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
@@ -75,7 +77,27 @@ class TimeSlotViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-    @action(detail=False, methods=['get'], url_path='available')
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='date',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=True,
+                description='Date for which to retrieve available time slots (YYYY-MM-DD)',
+            ),
+        ],
+        responses={
+            200: TimeSlotSerializer(many=True), # Document successful response
+            400: { # Document error response
+                'type': 'object',
+                'properties': {
+                    'error': {'type': 'string', 'description': 'Time Slots Not Found!'}
+                },
+            },
+        }
+    )
+    @action(detail=False, methods=['get'], url_path='availability')
     def available_slots(self,request):
         date_str = request.query_params.get('date')
         if not date_str:
@@ -89,7 +111,7 @@ class TimeSlotViewSet(viewsets.ReadOnlyModelViewSet):
         available_slots = []
 
         for time_slot in all_time_slots:
-            if not Reservation.objects.filter(time_slot=time_slot, date=date).exists():
+            if not Reservation.objects.filter(timeslots=time_slot, date=date).exists():
                 available_slots.append(TimeSlotSerializer(time_slot).data)
 
         return Response(available_slots)
@@ -102,12 +124,11 @@ class StudyRoomViewSet(viewsets.ReadOnlyModelViewSet): # Or ModelViewSet for adm
 class StudentViewSet(viewsets.ModelViewSet): # Use ModelViewSet for CRUD operations
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly] # Adjust as needed
+    permission_classes = [permissions.IsAuthenticated] # Adjust as needed
 
 class ReservationViewSet(viewsets.ModelViewSet): # Use ModelViewSet for CRUD operations
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
-    permission_classes = [permissions.IsAuthenticated] # Require authentication for reservations
 
     def get_serializer_context(self):
         """Pass request to serializer for user context if needed."""
