@@ -3,8 +3,7 @@ from datetime import datetime, timedelta, date
 from django.core.mail import send_mail
 from django.urls import reverse
 from rest_framework import serializers
-from django.core.exceptions import ValidationError
-
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from .models import Student, StudyRoom, Reservation, TimeSlot
 
 TIMESLOT_DURATION_MINUTES = 30
@@ -65,7 +64,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = ['id', 'student', 'study_room', 'timeslots', 'date', 'status', 'start_time', 'end_time', 'created_at'] # Include timeslots, start_time, end_time
-        read_only_fields = ['start_time', 'end_time', 'created_at'] # start_time/end_time are auto-calculated
+        read_only_fields = ['start_time', 'end_time', 'created_at', 'status'] # start_time/end_time are auto-calculated
 
 
     def validate_timeslots(self, value):
@@ -73,8 +72,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         Validates the list of timeslots provided.
         """
         if not value:
-            raise serializers.ValidationError("Please select at least one timeslot.")
-
+            raise DRFValidationError("Please select at least one timeslot.")
         if len(value) > MAX_TIMESLOTS:
             raise serializers.ValidationError(f"Maximum reservation duration is {MAX_RESERVATION_HOURS} hours (max {MAX_TIMESLOTS} timeslots).")
 

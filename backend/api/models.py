@@ -63,19 +63,14 @@ class Reservation(models.Model):
 
     def clean(self):
         print("Entering Reservation.clean()")
-        selected_timeslots = self.timeslots.all()
-        if self._state.adding and not selected_timeslots:
-            raise ValidationError("A reservation must include at least one timeslot.")
+        # selected_timeslots = self.timeslots.all()
+        # if self._state.adding and not selected_timeslots:
+        #     raise ValidationError("A reservation must include at least one timeslot.")
         print("Exiting Reservation.clean()")
         super().clean()
 
-    def save(self, *args, **kwargs):
-        try:
-            super().save(*args, **kwargs)  # Save first to get an ID
-            self.clean()
-        except ValidationError as e:
-            print(f"ValidationError in Reservation.save(): {e}")  # Debugging print for validation errors
-            raise
-
     def __str__(self):
-        return (f"{self.student} reserved {self.study_room} on {self.date}")
+        student_name = str(self.student) if self.student else "[No Student]"
+        room_name = str(self.study_room) if self.study_room else "[No Room]"
+        date_str = self.date.strftime("%Y-%m-%d") if self.date else "[No Date]"
+        return f"{student_name} reserved {room_name} on {date_str}"
