@@ -17,8 +17,6 @@ import "./LandingPage.css";
 import AvailabilityPage from "./AvailabilityPage";
 import { getTimeSlots } from "../services/api";
 
-// Import assets
-// Note: You may need to adjust these paths based on your actual asset locations
 import utrgvLogo from "../assets/utrgv-logo.png";
 import buildingBackground from "../assets/cs-building.jpg";
 import room2200 from "../assets/Room2200.jpg";
@@ -29,23 +27,16 @@ interface TimeSlot {
   is_available: boolean;
 }
 
-interface AvailabilityPage {
-  onClose: () => void;
-}
-
 const LandingPage: React.FC = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAvailabilityPageOpen, setIsOpen] = useState<boolean>(false); //here we will
-  // make sure that the button functions to make the availability page open
-  // then we will create the page and make sure all buttons work correctly
+  const [isAvailabilityPageOpen, setIsAvailabilityPageOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchTimeSlots = async () => {
       try {
         const data = await getTimeSlots();
-        // Ensure all time slots are marked as available with proper typing
         const availableData = data.map(
           (slot: { time_label: string; is_available: boolean }) => ({
             ...slot,
@@ -56,8 +47,6 @@ const LandingPage: React.FC = () => {
         setError(null);
       } catch (error) {
         console.error("Failed to fetch time slots:", error);
-
-        // Use the mock time slots function
         setTimeSlots(createMockTimeSlots());
       } finally {
         setLoading(false);
@@ -68,43 +57,14 @@ const LandingPage: React.FC = () => {
   }, []);
 
   const handleFloorClick = (floor: number) => {
-    // In the future, this could use React Router for navigation
     console.log(`Navigating to floor ${floor}`);
-    window.location.href = `/floor${floor}`; // Fallback method
+    window.location.href = `/floor${floor}`;
   };
 
-  // const handleRoomClick = (floor: number, roomNumber: string) => {
-  //   console.log(`Navigating to room ${roomNumber} on floor ${floor}`);
-  //   window.location.href = `/room${floor}`; // Fallback method
-  // };
-
-  // Bootstrap modal handling
-  useEffect(() => {
-    // Initialize Bootstrap modal functionality
-    // This ensures Bootstrap JS initializes the modal properly
-    const initializeBootstrapComponents = () => {
-      // Check if window and bootstrap are available (ensure it's client-side)
-      if (typeof window !== "undefined") {
-        // Wait for bootstrap to be available
-        const checkBootstrap = () => {
-          if (window.bootstrap) {
-            const modalElement = document.getElementById("availabilityModal");
-            if (modalElement) {
-              // Initialize the modal
-              new window.bootstrap.Modal(modalElement);
-            }
-          } else {
-            // If bootstrap isn't loaded yet, try again after a short delay
-            setTimeout(checkBootstrap, 100);
-          }
-        };
-
-        checkBootstrap();
-      }
-    };
-
-    initializeBootstrapComponents();
-  }, []);
+  const handleRoomClick = (floor: number, roomNumber: string) => {
+    console.log(`Navigating to room ${roomNumber} on floor ${floor}`);
+    window.location.href = `/room${floor}/${roomNumber}`;
+  };
 
   if (loading) {
     return (
@@ -213,25 +173,19 @@ const LandingPage: React.FC = () => {
           <button
             className="custom-button"
             id="room-availability-button"
-            data-bs-toggle="modal"
-            data-bs-target="#availabilityModal"
-            onClick={() => setIsOpen(true)}
+            onClick={() => setIsAvailabilityPageOpen(true)}
           >
             Availability
           </button>
-          {isAvailabilityPageOpen && (
-            <AvailabilityPage
-              onClose={() => setIsOpen(false)}
-              isOpen={isAvailabilityPageOpen}
-            />
-          )}
-          {timeSlots.map((timeslot: TimeSlot) => (
-    <div key={timeslot.time_label}> {/* Add a key for each element in the list */}
-        {timeslot.time_label}
-    </div>
-))}
         </div>
       </div>
+      
+      {isAvailabilityPageOpen && (
+        <AvailabilityPage
+          onClose={() => setIsAvailabilityPageOpen(false)}
+          isOpen={isAvailabilityPageOpen}
+        />
+      )}
     </div>
   );
 };
