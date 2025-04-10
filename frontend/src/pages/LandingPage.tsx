@@ -33,17 +33,11 @@ const LandingPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAvailabilityPageOpen, setIsAvailabilityPageOpen] = useState<boolean>(false);
 
-  useEffect(() => {
+useEffect(() => {
     const fetchTimeSlots = async () => {
       try {
         const data = await getTimeSlots();
-        const availableData = data.map(
-          (slot: { time_label: string; is_available: boolean }) => ({
-            ...slot,
-            is_available: true,
-          })
-        );
-        setTimeSlots(availableData);
+        setTimeSlots(data);
         setError(null);
       } catch (error) {
         console.error("Failed to fetch time slots:", error);
