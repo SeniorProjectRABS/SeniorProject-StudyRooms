@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Patua+One&family=Red+Hat+Display:wght@400;600&display=swap');
+
+.reservation-page-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: auto; 
+    font-family: 'Red Hat Display', sans-serif;
+}
+
+.reservation-parent-box {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 700px;
+    background-color: rgba(248, 249, 250, 0.97); 
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: #333;
+    max-height: 90vh; 
+}
+
+.reservation-header-div {
+    background-color: #313131;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+    padding: 0 15px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.reservation-header-image {
+    height: 50px;
+    width: auto;
+    margin-right: 20px;
+}
+
+.reservation-header-text {
+    flex-grow: 1;
+}
+
+.reservation-header-writing {
+    color: white;
+    font-size: 22px;
+    font-family: 'Patua One', serif;
+    margin: 0;
+}
+
+.reservation-main-content {
+    padding: 25px 30px;
+    overflow-y: auto; 
+    flex-grow: 1;
+}
+
+.reservation-main-content h3 {
+    font-family: 'Patua One', serif;
+    color: #4c4a4f;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.reservation-main-content p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.reservation-main-content strong {
+    color: #CB4900;
+}
+
+.reservation-main-content hr {
+    margin: 25px 0;
+    border-color: #e0e0e0;
+}
+
+.reservation-instruction,
+.reservation-confirmation-note {
+    font-size: 14px;
+    color: #555;
+    margin-top: 20px;
+    text-align: center;
+}
+.reservation-hold-info {
+    font-style: italic;
+    color: #444;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+
+.reservation-form-group {
+    margin-bottom: 20px;
+}
+
+.reservation-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+}
+
+.reservation-form-group input[type="text"],
+.reservation-form-group input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.reservation-form-group input:focus {
+    border-color: #a0340d;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(203, 73, 0, 0.25);
+}
+.reservation-form-group input:disabled {
+    background-color: #e9ecef;
+    opacity: 0.7;
+}
+.reservation-form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+
+.reservation-error-message {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 15px;
+    text-align: center;
+    padding: 8px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+}
+.reservation-error-message.form-error {
+     margin-bottom: 15px; 
+}
+.reservation-error-message.submit-error {
+     margin-top: -5px; 
+     margin-bottom: 15px;
+}
+
+
+
+.reservation-button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+    margin-bottom: 20px;
+}
+
+.reservation-button-group .custom-button {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+.reservation-button-group .reserve-final-button {
+}
+
+.reservation-button-group .reservation-back-button {
+    background-color: #6c757d; 
+}
+
+.reservation-button-group .reservation-back-button:hover {
+    background-color: #5a6268;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-family: 'Patua One', serif;
+    color: #555;
+}
+@media (max-width: 768px) {
+    .reservation-parent-box {
+        width: 95%;
+        max-width: none;
+        max-height: 95vh;
+    }
+    .reservation-main-content {
+        padding: 20px;
+    }
+    .reservation-header-writing {
+        font-size: 18px;
+    }
+    .reservation-button-group {
+        flex-direction: column;
+        align-items: center;
+    }
+     .reservation-button-group .custom-button {
+        width: 80%;
+        max-width: 300px;
+    }
+}
+
+
+.reservation-main-content h3 {
+    color: #cc510b !important;
+}
