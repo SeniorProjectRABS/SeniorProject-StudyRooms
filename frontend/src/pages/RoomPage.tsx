@@ -199,7 +199,7 @@ const RoomPage: React.FC = () => {
             <div className="room-page-container" style={{ backgroundImage: `url(${buildingBackground})` }}>
                <div className="error-container room-error">
                    <p>{error}</p>
-                    <Link to="/" className="custom-button back-button">
+                    <Link to="/" className="custom-button">
                         Back to Home
                     </Link>
                </div>

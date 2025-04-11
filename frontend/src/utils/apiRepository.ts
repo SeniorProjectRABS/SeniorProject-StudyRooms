@@ -2,16 +2,16 @@ import axiosInstance from "./axios";
 import {
     StudyRoom,
     TimeSlot,
-    Reservation, 
-    Student 
+    Student,
+    ReservationDetails 
 } from "./schema.ts";
 
 
 interface CreateReservationPayload {
-    student: number;       // Student Primary Key
-    study_room: number;    // StudyRoom Primary Key
-    timeslots: number[];   // Array of TimeSlot Primary Keys
-    date: string;          // YYYY-MM-DD format
+    student: string;      
+    study_room: number;    
+    timeslots: number[];   
+    date: string;          
 }
 
 
@@ -21,8 +21,8 @@ interface ReservationResponse {
     start_time: string;
     end_time: string;
     created_at: string;
-    student: { id: number; name: string; email: string; student_id: string } | number;
-    study_room: { id: number; room_number: string; floor: string } | number;
+    student: Student | number | string; 
+    study_room: StudyRoom | number; 
     date: string;
     timeslots: number[];
  }
@@ -33,14 +33,6 @@ interface ActionResponse {
 }
 
 
-const DEMO_STUDENTS: Student[] = [
-     { id: 1, student_id: '20448443', name: 'Bradley Puga', email: 'bradley.puga02@utrgv.edu' },
-     { id: 2, student_id: '20312345', name: 'Ruben Gonzalez', email: 'ruben.gonzalez02@utrgv.edu' },
-     { id: 3, student_id: '12345678', name: 'Samantha Cadena', email: 'samantha.cadena01@utrgv.edu' },
-     { id: 4, student_id: '23112402', name: 'Armamdo Vazquez', email: 'armamdo.vazquez01@utrgv.edu' },
-];
-// --- END TEMPORARY DEMO DATA ---
-
 class ApiRepository{
 
     async fetchReservations(): Promise<ReservationResponse[]>{
@@ -50,7 +42,7 @@ class ApiRepository{
 
     async createReservation(
         reservationData: CreateReservationPayload,
-    ): Promise<ReservationResponse>{
+    ): Promise<ReservationResponse>{ 
         const response = await axiosInstance.post("/api/reservations/", reservationData);
         return response.data;
     }
@@ -59,8 +51,6 @@ class ApiRepository{
         const response = await axiosInstance.get(`/api/reservations/${reservationID}/`);
         return response.data;
     }
-
-
 
     async cancelReservation(reservationID: number): Promise<ActionResponse>{
         const response = await axiosInstance.get(`/api/reservations/cancel/${reservationID}/`);
@@ -100,19 +90,6 @@ class ApiRepository{
         return response.data;
     }
 
-     // ----- STUDENTS -----
-
-     // !! TEMPORARY DEMO FUNCTION !!
-     // In a real app, replace this with an API call to a backend endpoint
-     // like /api/students/find/?student_id=... or /api/students/find/?email=...
-     async findStudentPk(identifier: string): Promise<number | null> {
-         const normalizedIdentifier = identifier.trim().toLowerCase();
-         const student = DEMO_STUDENTS.find(
-             s => s.student_id === normalizedIdentifier || s.email.toLowerCase() === normalizedIdentifier
-         );
-         return student ? student.id : null;
-     }
-     // !! END TEMPORARY DEMO FUNCTION !!
 
 
 }

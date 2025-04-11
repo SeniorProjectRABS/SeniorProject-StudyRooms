@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { apiRepository } from '../utils/apiRepository';
-import { Student } from '../utils/schema'; 
 
-import utrgvLogo from "../assets/utrgv-logo.png"; 
-import buildingBackground from "../assets/cs-building.jpg"; 
-import './ReservationPage.css'; 
+import utrgvLogo from "../assets/utrgv-logo.png";
+import buildingBackground from "../assets/cs-building.jpg";
+import './ReservationPage.css';
 
 interface ReservationLocationState {
     roomId: number;
@@ -16,13 +15,13 @@ interface ReservationLocationState {
     endTime?: string;
 }
 
+
 const ReservationPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const state = location.state as ReservationLocationState | null;
 
     const [studentIdInput, setStudentIdInput] = useState('');
-    const [emailInput, setEmailInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
@@ -36,69 +35,57 @@ const ReservationPage: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        setFormError(null); 
-        setError(null);   
+        setFormError(null);
+        setError(null);
 
-        if (!studentIdInput.trim() || !emailInput.trim()) {
-            setFormError("Please enter both Student ID and Email.");
+        if (!studentIdInput.trim()) {
+            setFormError("Please enter your Student ID.");
             return;
         }
 
-        let studentPk: number | null = null;
-        const lowerCaseEmail = emailInput.trim().toLowerCase();
         const trimmedStudentId = studentIdInput.trim();
 
-        const studentMap: { [key: string]: number } = {
-            '20448443': 1,
-            'bradley.puga02@utrgv.edu': 1,
-            '20312345': 2,
-            'ruben.gonzalez02@utrgv.edu': 2,
-            '12345678': 3,
-            'samantha.cadena01@utrgv.edu': 3,
-            '23112402': 4,
-            'armamdo.vazquez01@utrgv.edu': 4, 
-        };
-
-        studentPk = studentMap[trimmedStudentId] ?? studentMap[lowerCaseEmail];
-
-        if (studentPk === null) {
-             setFormError("Student ID or Email not found in demo data. Use a seeded ID/Email.");
-             return;
-         }
-         // --- End Temporary Mapping ---
 
         if (!state) {
-            setError("Reservation details are missing."); // Should be caught by useEffect, but safety check
+            setError("Reservation details are missing.");
             return;
         }
 
         const reservationData = {
-            student: studentPk,
+            student: trimmedStudentId,
             study_room: state.roomId,
             timeslots: state.selectedSlots,
             date: state.date,
         };
 
-        console.log("Submitting reservation with data:", reservationData);
+        console.log("Submitting reservation with data (sending string student ID):", reservationData);
         setLoading(true);
 
         try {
             const createdReservation = await apiRepository.createReservation(reservationData);
             console.log("Reservation successful:", createdReservation);
 
-            const studentEmail = (createdReservation.student as Student)?.email || emailInput; 
-
-            alert(`Reservation submitted! Please check your email (${studentEmail}) to confirm within 1 hour.`);
-            navigate('/'); 
+            alert(`Reservation submitted! Please check your UTRGV email to confirm within 1 hour.`);
+            navigate('/');
         } catch (err: any) {
             console.error("Reservation failed:", err.response?.data || err.message || err);
-             const errorDetail = err.response?.data?.detail || err.response?.data?.non_field_errors?.join(', ') || err.response?.data?.timeslots?.join(', ') || err.response?.data?.student?.join(', ') || err.response?.data?.study_room?.join(', ');
-            setError(`Reservation failed: ${errorDetail || 'Please check details and try again.'}`);
+             let errorDetail = 'An unknown error occurred.';
+             if (err.response?.data) {
+                 const data = err.response.data;
+                 errorDetail = data.detail ||
+                              (Array.isArray(data.student) ? data.student.join(', ') : data.student) || 
+                              (Array.isArray(data.non_field_errors) ? data.non_field_errors.join(', ') : data.non_field_errors) ||
+                              (typeof data === 'string' ? data : JSON.stringify(data)); 
+             } else {
+                 errorDetail = err.message || errorDetail;
+             }
+            setError(`Reservation failed: ${errorDetail}.`);
 
         } finally {
             setLoading(false);
         }
     };
+
     if (!state) {
         return <div className="loading-container">Loading details...</div>;
     }
@@ -116,17 +103,16 @@ const ReservationPage: React.FC = () => {
                 <div className="reservation-main-content">
                     <h3>Booking Summary</h3>
                     <p><strong>Room:</strong> EIEAB {state.roomNumber}</p>
-                    <p><strong>Date:</strong> {state.date}</p>
+                    <p><strong>Date:</strong> {new Date(state.date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p> {/* Display formatted date */}
                     <p><strong>Time:</strong> {state.startTime} - {state.endTime}</p>
                      <p className="reservation-hold-info">
                         The room will be held for you from {state.startTime} to {state.endTime} on {new Date(state.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
                      </p>
 
-
                     <hr />
 
                     <h3>Enter Your Details</h3>
-                    <p className="reservation-instruction">Please enter your UTRGV Student ID and Email to complete the reservation.</p>
+                    <p className="reservation-instruction">Please enter your UTRGV Student ID to complete the reservation.</p>
 
                     <form onSubmit={handleSubmit}>
                         <div className="reservation-form-group">
@@ -139,20 +125,9 @@ const ReservationPage: React.FC = () => {
                                 placeholder="e.g., 20448443"
                                 required
                                 disabled={loading}
+                                aria-describedby="studentIdHelp" 
                             />
-                        </div>
-                        <div className="reservation-form-group">
-                            <label htmlFor="email">UTRGV Email:</label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={emailInput}
-                                onChange={(e) => setEmailInput(e.target.value)}
-                                placeholder="e.g., bradley.puga02@utrgv.edu"
-                                required
-                                disabled={loading}
-                            />
-                             <small>Enter @utrgv.edu addresses only</small>
+                            <small id="studentIdHelp" className="form-text text-muted">Enter your official UTRGV Student ID.</small>
                         </div>
 
                         {formError && <p className="reservation-error-message form-error">{formError}</p>}
@@ -169,7 +144,6 @@ const ReservationPage: React.FC = () => {
                              <Link to={`/room/${state.roomId}`} className="custom-button back-button reservation-back-button">
                                 Cancel
                              </Link>
-
                         </div>
                     </form>
                     <p className="reservation-confirmation-note">
