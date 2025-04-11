@@ -204,7 +204,7 @@ th, td {
 }
 
 .time-slot {
-  background-color: #14951f !important;
+  background-color: #14951f;
   color: white !important;
   padding: 8px 15px;
   border-radius: 5px;
