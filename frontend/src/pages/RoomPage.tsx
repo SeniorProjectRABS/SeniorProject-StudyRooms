@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import './RoomPage.css';
 import { apiRepository } from '../utils/apiRepository';
-import { StudyRoom, TimeSlot as ApiTimeSlot } from '../utils/schema'; 
+import { StudyRoom, TimeSlot as ApiTimeSlot } from '../utils/schema';
 
 import utrgvLogo from "../assets/utrgv-logo.png";
 import defaultRoomImage from "../assets/Room2200.jpg";
@@ -16,17 +16,19 @@ interface TimeSlotSelection extends ApiTimeSlot {
     available: boolean;
 }
 
+const MAX_SLOTS = 4; 
+
 const RoomPage: React.FC = () => {
     const { roomId } = useParams<{ roomId: string }>();
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const [room, setRoom] = useState<StudyRoom | null>(null);
     const [timeSlots, setTimeSlots] = useState<TimeSlotSelection[]>([]);
     const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
+    const [startSlotId, setStartSlotId] = useState<number | null>(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentDate] = useState(() => new Date().toISOString().split('T')[0]);
-
 
     useEffect(() => {
          if (!roomId) {
@@ -34,9 +36,8 @@ const RoomPage: React.FC = () => {
             setLoading(false);
             return;
         }
-
         const fetchRoomData = async () => {
-            setLoading(true);
+            setLoading(true); 
             setError(null);
             try {
                 const roomData = await apiRepository.fetchStudyRoomByID(parseInt(roomId, 10));
@@ -44,34 +45,30 @@ const RoomPage: React.FC = () => {
             } catch (err) {
                 console.error("Failed to fetch room details:", err);
                 setError("Could not load room details. Please try again.");
-            } finally {
-                 // Don't set loading false here, wait for availability
+                setLoading(false); 
             }
         };
         fetchRoomData();
     }, [roomId]);
 
-
     useEffect(() => {
           if (!roomId || !room) {
-             if (room && loading === false) setLoading(true);
+             if (!loading) setLoading(true);
              return;
          }
-
         const fetchAvailability = async () => {
-             setError(null); 
+             setError(null);
             try {
                 console.log(`Fetching availability for room ${roomId} on ${currentDate}`);
                 const allPossibleSlots = await apiRepository.fetchTimeSlots();
-
                  const roomReservations = await apiRepository.fetchReservations();
                  const reservedSlotsForRoomDate = new Set<number>();
                  roomReservations.forEach(res => {
-                     if (res.study_room === room.id && res.date === currentDate && (res.status === 'confirmed' || res.status === 'pending')) {
+                      const resRoomId = typeof res.study_room === 'number' ? res.study_room : res.study_room.id;
+                      if (resRoomId === room.id && res.date === currentDate && (res.status === 'confirmed' || res.status === 'pending')) {
                          res.timeslots.forEach(slotId => reservedSlotsForRoomDate.add(slotId));
                      }
                  });
-
 
                 const mergedSlots: TimeSlotSelection[] = allPossibleSlots.map(slot => ({
                     ...slot,
@@ -82,6 +79,7 @@ const RoomPage: React.FC = () => {
                 console.log("Merged Slots:", mergedSlots);
                 setTimeSlots(mergedSlots);
                 setSelectedSlots([]);
+                setStartSlotId(null); 
 
             } catch (err) {
                 console.error("Failed to fetch time slots or availability:", err);
@@ -91,90 +89,72 @@ const RoomPage: React.FC = () => {
                 setLoading(false); 
             }
         };
-
         fetchAvailability();
-
     }, [roomId, room, currentDate]); 
 
+
+    const resetSelection = () => {
+        setStartSlotId(null);
+        setSelectedSlots([]);
+        setTimeSlots(prevSlots => prevSlots.map(slot => ({ ...slot, selected: false })));
+    };
+
     const handleTimeSlotClick = (clickedSlotId: number) => {
-         const clickedIndex = timeSlots.findIndex(slot => slot.id === clickedSlotId);
-        if (clickedIndex === -1 || !timeSlots[clickedIndex].available) return; 
+        const clickedSlot = timeSlots.find(slot => slot.id === clickedSlotId);
+        if (!clickedSlot || !clickedSlot.available) return; 
 
-        const currentSelectionIds = [...selectedSlots]; 
-
-        let newSelectionIds: number[] = [];
-        const isCurrentlySelected = currentSelectionIds.includes(clickedSlotId);
-
-        if (isCurrentlySelected) {
-            newSelectionIds = [];
+        if (startSlotId === null) {
+            setStartSlotId(clickedSlotId);
+            setSelectedSlots([clickedSlotId]); 
+            setTimeSlots(prevSlots => prevSlots.map(slot => ({
+                ...slot,
+                selected: slot.id === clickedSlotId
+            })));
         } else {
-            if (currentSelectionIds.length === 0) {
-                newSelectionIds = [clickedSlotId];
-            } else {
-                const selectedIndices = currentSelectionIds.map(id => timeSlots.findIndex(s => s.id === id)).sort((a, b) => a - b);
-                const minSelectedIndex = selectedIndices[0];
-                const maxSelectedIndex = selectedIndices[selectedIndices.length - 1];
-
-                if (clickedIndex === minSelectedIndex - 1) { 
-                    if (timeSlots[clickedIndex].available) {
-                        newSelectionIds = [clickedSlotId, ...currentSelectionIds];
-                    } else {
-                        newSelectionIds = [clickedSlotId]; 
-                    }
-                } else if (clickedIndex === maxSelectedIndex + 1) { 
-                     if (timeSlots[clickedIndex].available) {
-                        newSelectionIds = [...currentSelectionIds, clickedSlotId];
-                    } else {
-                        newSelectionIds = [clickedSlotId]; 
-                    }
-                } else {
-                    newSelectionIds = [clickedSlotId];
-                }
+            if (clickedSlotId === startSlotId) {
+                resetSelection();
+                return;
             }
+
+            const startIndex = timeSlots.findIndex(slot => slot.id === startSlotId);
+            const endIndex = timeSlots.findIndex(slot => slot.id === clickedSlotId);
+
+            if (startIndex === -1 || endIndex === -1) {
+                console.error("Error finding slot indices");
+                resetSelection();
+                return;
+            }
+
+            const rangeStart = Math.min(startIndex, endIndex);
+            const rangeEnd = Math.max(startIndex, endIndex);
+            const slotsInRange = timeSlots.slice(rangeStart, rangeEnd + 1);
+
+            if (slotsInRange.length > MAX_SLOTS) {
+                alert(`Selection exceeds the maximum duration of ${MAX_SLOTS / 2} hours (${MAX_SLOTS} slots). Please select a shorter range.`);
+                resetSelection();
+                return;
+            }
+
+            const allAvailable = slotsInRange.every(slot => slot.available);
+            if (!allAvailable) {
+                alert("The selected range includes unavailable time slots. Please select a valid range.");
+                resetSelection();
+                return;
+            }
+
+            const newSelectionIds = slotsInRange.map(slot => slot.id);
+            setSelectedSlots(newSelectionIds);
+            setTimeSlots(prevSlots => prevSlots.map((slot, index) => ({
+                ...slot,
+                selected: index >= rangeStart && index <= rangeEnd
+            })));
+            setStartSlotId(null); 
         }
-
-
-         const MAX_SLOTS = 4; 
-         if (newSelectionIds.length > MAX_SLOTS) {
-             alert(`You can only select up to ${MAX_SLOTS / 2} hours (${MAX_SLOTS} time slots).`);
-             newSelectionIds = newSelectionIds.includes(clickedSlotId) ? [clickedSlotId] : [];
-         }
-
-         if (newSelectionIds.length > 1) {
-             const sortedIndices = newSelectionIds
-                 .map(id => timeSlots.findIndex(s => s.id === id))
-                 .sort((a, b) => a - b);
-
-             let consecutive = true;
-             for (let i = 0; i < sortedIndices.length - 1; i++) {
-                 if (sortedIndices[i+1] !== sortedIndices[i] + 1) {
-                     consecutive = false;
-                     break;
-                 }
-                 if (!timeSlots[sortedIndices[i+1]]?.available) {
-                     consecutive = false;
-                     break;
-                 }
-             }
-
-             if (!consecutive) {
-                 alert("Please select consecutive available time slots.");
-                 newSelectionIds = newSelectionIds.includes(clickedSlotId) ? [clickedSlotId] : [];
-             }
-         }
-
-
-        setSelectedSlots(newSelectionIds);
-
-        setTimeSlots(prevSlots => prevSlots.map(slot => ({
-            ...slot,
-            selected: newSelectionIds.includes(slot.id)
-        })));
     };
 
     const handleReserveClick = () => {
-        if (selectedSlots.length === 0) {
-            alert("Please select at least one time slot.");
+        if (selectedSlots.length === 0 || startSlotId !== null) {
+            alert("Please select a complete time slot range.");
             return;
         }
         if (!room) {
@@ -183,45 +163,71 @@ const RoomPage: React.FC = () => {
         }
 
         const firstSelectedSlot = timeSlots.find(ts => ts.id === selectedSlots[0]);
-        const lastSelectedSlot = timeSlots.find(ts => ts.id === selectedSlots[selectedSlots.length - 1]);
+         const sortedSelectedIds = [...selectedSlots].sort((a, b) => {
+             const indexA = timeSlots.findIndex(s => s.id === a);
+             const indexB = timeSlots.findIndex(s => s.id === b);
+             return indexA - indexB;
+         });
+        const lastSelectedSlot = timeSlots.find(ts => ts.id === sortedSelectedIds[sortedSelectedIds.length - 1]);
+
+
+        if (!firstSelectedSlot || !lastSelectedSlot) {
+             alert("Error identifying selected time range.");
+             return;
+         }
+
 
         const reservationDetails = {
             roomId: room.id,
             roomNumber: room.room_number,
             date: currentDate,
-            selectedSlots: selectedSlots,
-            startTime: firstSelectedSlot?.start_time,
-            endTime: lastSelectedSlot?.end_time,
+            selectedSlots: sortedSelectedIds, 
+            startTime: firstSelectedSlot.start_time,
+            endTime: lastSelectedSlot.end_time,
         };
 
         console.log("Navigating to /reserve with state:", reservationDetails);
         navigate('/reserve', { state: reservationDetails });
     };
 
-    if (loading) { 
+    if (loading) {
         return <div className="loading-container room-loading">Loading Room & Availability...</div>;
     }
 
-     if (error) { 
-         return (
-             <div className="room-page-container" style={{ backgroundImage: `url(${buildingBackground})` }}>
-                <div className="error-container room-error">
-                    <p>{error}</p>
-                     <Link to="/" className="custom-button back-button">
-                         Back to Home
-                     </Link>
-                </div>
-             </div>
-             );
-     }
+    if (error) {
+        return (
+            <div className="room-page-container" style={{ backgroundImage: `url(${buildingBackground})` }}>
+               <div className="error-container room-error">
+                   <p>{error}</p>
+                    <Link to="/" className="custom-button back-button">
+                        Back to Home
+                    </Link>
+               </div>
+            </div>
+            );
+    }
 
-    if (!room) { 
-         return <div className="error-container room-error">Room not found.</div>;
-     }
+    if (!room) {
+        return <div className="error-container room-error">Room not found.</div>;
+    }
 
+    let selectedTimeText = "Select a start time slot below";
+    if (startSlotId !== null) {
+        const startSlot = timeSlots.find(ts => ts.id === startSlotId);
+        selectedTimeText = `Selected start: ${startSlot?.start_time}. Now select an end time slot.`;
+    } else if (selectedSlots.length > 0) {
+         const sortedSelectedIds = [...selectedSlots].sort((a, b) => {
+            const indexA = timeSlots.findIndex(s => s.id === a);
+            const indexB = timeSlots.findIndex(s => s.id === b);
+            return indexA - indexB;
+         });
+        const firstSelected = timeSlots.find(ts => ts.id === sortedSelectedIds[0]);
+        const lastSelected = timeSlots.find(ts => ts.id === sortedSelectedIds[sortedSelectedIds.length - 1]);
+        if (firstSelected && lastSelected) {
+            selectedTimeText = `Selected: ${firstSelected.start_time} to ${lastSelected.end_time}`;
+        }
+    }
 
-    const firstSelected = selectedSlots.length > 0 ? timeSlots.find(ts => ts.id === selectedSlots[0]) : null;
-    const lastSelected = selectedSlots.length > 0 ? timeSlots.find(ts => ts.id === selectedSlots[selectedSlots.length - 1]) : null;
 
     return (
         <div className="room-page-container" style={{ backgroundImage: `url(${buildingBackground})` }}>
@@ -232,8 +238,7 @@ const RoomPage: React.FC = () => {
                          <p className="room-header-writing">EIEAB Room {room.room_number}</p>
                      </div>
                  </div>
-                <div className="room-center-body">
-
+                 <div className="room-center-body">
                     <div className="room-features-container">
                          <p className="room-features-title">Features:</p>
                          <div className="room-feature-item">
@@ -254,9 +259,7 @@ const RoomPage: React.FC = () => {
                     <p className="room-seat-info">Seats available: 5</p>
 
                     <p className="room-selected-time">
-                         {firstSelected && lastSelected
-                             ? `Selected: ${firstSelected.start_time} to ${lastSelected.end_time}`
-                             : 'Select a time slot below'}
+                        {selectedTimeText}
                     </p>
 
                      {timeSlots.length === 0 && !loading && <p className="room-error-message">No time slots available for this date.</p>}
@@ -280,8 +283,8 @@ const RoomPage: React.FC = () => {
                          <button
                             type="button"
                             className="custom-button reserve-button"
-                            onClick={handleReserveClick} 
-                            disabled={selectedSlots.length === 0 || loading} 
+                            onClick={handleReserveClick}
+                            disabled={selectedSlots.length === 0 || startSlotId !== null || loading} 
                          >
                              RESERVE
                          </button>
@@ -290,7 +293,6 @@ const RoomPage: React.FC = () => {
                         </Link>
                     </div>
                 </div>
-
             </div>
         </div>
     );

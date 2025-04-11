@@ -1,172 +1,87 @@
-// Mock data in case API call fails during development - ALL AVAILABLE
-const createMockTimeSlots = () => {
-  return Array.from({ length: 22 }, (_, i) => {
-    const hour = Math.floor(i / 2) + 8;
-    const minute = (i % 2) * 30;
-    const period = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-
-    return {
-      time_label: `${displayHour}:${minute === 0 ? "00" : minute} ${period}`,
-      is_available: true, // All slots available
-    };
-  });
-};
 import React, { useState, useEffect } from "react";
-import "./LandingPage.css";
+import "./LandingPage.css"; 
 import AvailabilityPage from "./AvailabilityPage";
-import { getTimeSlots } from "../services/api";
 
+// Import assets
 import utrgvLogo from "../assets/utrgv-logo.png";
 import buildingBackground from "../assets/cs-building.jpg";
-import room2200 from "../assets/Room2200.jpg";
-import map from "../assets/map.jpg";
+import roomImage1 from "../assets/Room2200.jpg"; 
+import roomImage2 from "../assets/map.jpg";     
 
-interface TimeSlot {
-  time_label: string;
-  is_available: boolean;
-}
 
 const LandingPage: React.FC = () => {
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); 
   const [isAvailabilityPageOpen, setIsAvailabilityPageOpen] = useState<boolean>(false);
 
-useEffect(() => {
-    const fetchTimeSlots = async () => {
-      try {
-        const data = await getTimeSlots();
-        setTimeSlots(data);
-        setError(null);
-      } catch (error) {
-        console.error("Failed to fetch time slots:", error);
-        setTimeSlots(createMockTimeSlots());
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTimeSlots();
-  }, []);
-
-  const handleFloorClick = (floor: number) => {
-    console.log(`Navigating to floor ${floor}`);
-    window.location.href = `/floor${floor}`;
-  };
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="loading-text">Loading room information...</p>
-      </div>
-    );
-  }
 
   return (
     <div
       className="landing-container"
       style={{ backgroundImage: `url(${buildingBackground})` }}
     >
-      <div className="header-div">
-        <img className="header-image" src={utrgvLogo} alt="UTRGV Logo" />
+      <div className="landing-header">
+        <img className="landing-header-logo" src={utrgvLogo} alt="UTRGV Logo" />
       </div>
-      <div className="h1">
-        <div className="slideshow-div">
+
+      <div className="landing-content-box">
+        <div className="landing-carousel-container">
           <div
-            id="carouselExampleControls"
+            id="roomCarousel" 
             className="carousel slide carousel-fade"
             data-bs-ride="carousel"
-            data-bs-interval="5000"
+            data-bs-interval="4000" 
           >
             <div className="carousel-inner">
               <div className="carousel-item active">
                 <img
-                  className="slideshow d-block w-100"
-                  src={room2200}
-                  alt="Study Room"
+                  className="landing-slideshow-image d-block w-100"
+                  src={roomImage1}
+                  alt="Study Room Example 1"
                 />
               </div>
               <div className="carousel-item">
                 <img
-                  className="slideshow d-block w-100"
-                  src={map}
-                  alt="Floor Map"
+                  className="landing-slideshow-image d-block w-100"
+                  src={roomImage2} 
+                  alt="Study Room Example 2"
                 />
               </div>
+
             </div>
             <button
               className="carousel-control-prev"
               type="button"
-              data-bs-target="#carouselExampleControls"
+              data-bs-target="#roomCarousel"
               data-bs-slide="prev"
             >
-              <span
-                className="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
+              <span className="carousel-control-prev-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Previous</span>
             </button>
             <button
               className="carousel-control-next"
               type="button"
-              data-bs-target="#carouselExampleControls"
+              data-bs-target="#roomCarousel"
               data-bs-slide="next"
             >
-              <span
-                className="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
+              <span className="carousel-control-next-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Next</span>
             </button>
           </div>
         </div>
-      </div>
-      <div className="parent-box">
-        {error && (
-          <div className="alert alert-warning m-3" role="alert">
-            {error}
-          </div>
-        )}
+        <h1 className="landing-title">EIEAB Study Room Reservations</h1>
 
-        <div className="floor-selection-div">
-          <div>
-            <h1>Room Reservation</h1>
-          </div>
-          <div className="buttons">
-            <button
-              className="custom-button"
-              onClick={() => handleFloorClick(1)}
-            >
-              Floor 1
-            </button>
-            <button
-              className="custom-button"
-              onClick={() => handleFloorClick(2)}
-            >
-              Floor 2
-            </button>
-            <button
-              className="custom-button"
-              onClick={() => handleFloorClick(3)}
-            >
-              Floor 3
-            </button>
-          </div>
-        </div>
 
-        <div className="rooms-available-div">
+        <div className="landing-button-container">
           <button
-            className="custom-button"
-            id="room-availability-button"
+            className="landing-action-button"
             onClick={() => setIsAvailabilityPageOpen(true)}
+            disabled={loading} 
           >
-            Availability
+            {loading ? "Loading..." : "View Availability"}
           </button>
         </div>
       </div>
-      
+
       {isAvailabilityPageOpen && (
         <AvailabilityPage
           onClose={() => setIsAvailabilityPageOpen(false)}
