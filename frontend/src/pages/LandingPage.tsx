@@ -46,7 +46,6 @@ useEffect(() => {
         setLoading(false);
       }
     };
-
     fetchTimeSlots();
   }, []);
 
@@ -54,12 +53,6 @@ useEffect(() => {
     console.log(`Navigating to floor ${floor}`);
     window.location.href = `/floor${floor}`;
   };
-
-  const handleRoomClick = (floor: number, roomNumber: string) => {
-    console.log(`Navigating to room ${roomNumber} on floor ${floor}`);
-    window.location.href = `/room${floor}/${roomNumber}`;
-  };
-
   if (loading) {
     return (
       <div className="loading-container">
