@@ -288,7 +288,7 @@ const RoomPage: React.FC = () => {
                          >
                              RESERVE
                          </button>
-                        <Link to="/" className="custom-button back-button">
+                        <Link to="/" className="custom-button">
                             Back to Home
                         </Link>
                     </div>
