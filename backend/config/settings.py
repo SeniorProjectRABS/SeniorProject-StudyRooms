@@ -25,9 +25,9 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-gs1a9y$tgs9&de#-q(a^-al1qya4o009ky(81m_cf70o0e)2q*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 DJANGO_APSCHEDULER_RUN_NOW_TASKS_SYNC = True
 # Application definition
@@ -110,14 +110,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get("DB_NAME", 'default_db'),
-        'USER': os.environ.get("DB_USER", 'root'),
-        'PASSWORD': os.environ.get('DB_PASS','default_password'),
-        'HOST': os.environ.get("DB_HOST", 'localhost'),
-        'PORT': os.environ.get("DB_PORT", 3306),
-
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

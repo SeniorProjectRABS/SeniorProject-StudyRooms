@@ -117,10 +117,10 @@ class TimeSlotViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(available_slots)
 
-class StudyRoomViewSet(viewsets.ReadOnlyModelViewSet): # Or ModelViewSet for admin
+class StudyRoomViewSet(viewsets.ModelViewSet):  # allow create + list
     queryset = StudyRoom.objects.all()
     serializer_class = StudyRoomSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly] # Adjust as needed
+    permission_classes = [NoUpdateDelete]         # GET/POST allowed; PUT/PATCH/DELETE denied
 
 class StudentViewSet(viewsets.ModelViewSet): # Use ModelViewSet for CRUD operations
     queryset = Student.objects.all()
