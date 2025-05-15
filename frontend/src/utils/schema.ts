@@ -10,7 +10,8 @@ export interface Student {
 export interface StudyRoom {
     id: number;
     room_number: string;
-    floor: string;
+     floor: string;
+    image_url?: string | null; 
 
 }
 

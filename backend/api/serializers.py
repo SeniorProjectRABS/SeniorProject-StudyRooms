@@ -36,9 +36,11 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = ['id', 'student_id', 'name', 'email']
 
 class StudyRoomSerializer(serializers.ModelSerializer):
+    image_url = serializers.ImageField(source='image', read_only=True, use_url=True, allow_null=True, required=False)
+    
     class Meta:
         model = StudyRoom
-        fields = ['id', 'room_number', 'floor']
+        fields = ['id', 'room_number', 'floor', 'image_url']
 
 class TimeSlotSerializer(serializers.ModelSerializer):
     start_time = serializers.TimeField(

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import './RoomPage.css';
 import { apiRepository } from '../utils/apiRepository';
+// Make sure your StudyRoom type in schema.ts (or models.ts) includes `image: string | null;`
 import { StudyRoom, TimeSlot as ApiTimeSlot } from '../utils/schema';
 
 import utrgvLogo from "../assets/utrgv-logo.png";
-import defaultRoomImage from "../assets/Room2200.jpg";
+// We will use a dynamic image now, so defaultRoomImage import can be removed or commented out if no longer needed elsewhere.
+// import defaultRoomImage from "../assets/Room2200.jpg";
 import whiteboardIcon from "../assets/icons/whiteboard.svg";
 import chargingIcon from "../assets/icons/charging.svg";
 import tvIcon from "../assets/icons/tv.svg";
@@ -16,7 +18,10 @@ interface TimeSlotSelection extends ApiTimeSlot {
     available: boolean;
 }
 
-const MAX_SLOTS = 4; 
+const MAX_SLOTS = 4;
+
+// Define a placeholder image path (place an image like 'placeholder-room.png' in your frontend/public/ directory)
+const PLACEHOLDER_ROOM_IMAGE_SRC = "/placeholder-room.png"; // Or .jpg, etc.
 
 const RoomPage: React.FC = () => {
     const { roomId } = useParams<{ roomId: string }>();
@@ -25,7 +30,7 @@ const RoomPage: React.FC = () => {
     const [room, setRoom] = useState<StudyRoom | null>(null);
     const [timeSlots, setTimeSlots] = useState<TimeSlotSelection[]>([]);
     const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
-    const [startSlotId, setStartSlotId] = useState<number | null>(null); 
+    const [startSlotId, setStartSlotId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -37,27 +42,31 @@ const RoomPage: React.FC = () => {
             return;
         }
         const fetchRoomData = async () => {
-            setLoading(true); 
+            setLoading(true);
             setError(null);
             try {
                 const roomData = await apiRepository.fetchStudyRoomByID(parseInt(roomId, 10));
+                console.log("Fetched Room Data:", roomData);
                 setRoom(roomData);
+                // No change needed here as roomData should now include the 'image' field from the API
             } catch (err) {
                 console.error("Failed to fetch room details:", err);
                 setError("Could not load room details. Please try again.");
-                setLoading(false); 
+            } finally { // Ensure loading is set to false in the finally block if it wasn't set in try/catch
+                setLoading(false);
             }
         };
         fetchRoomData();
     }, [roomId]);
 
     useEffect(() => {
-          if (!roomId || !room) {
-             if (!loading) setLoading(true);
+          if (!roomId || !room) { // If room is not yet loaded, or roomId is missing
+             if (!loading && !error) setLoading(true); // Set loading only if not already loading or errored
              return;
          }
         const fetchAvailability = async () => {
-             setError(null);
+             setError(null); // Clear previous errors
+             // setLoading(true); // Already handled by the outer loading state or previous effect
             try {
                 console.log(`Fetching availability for room ${roomId} on ${currentDate}`);
                 const allPossibleSlots = await apiRepository.fetchTimeSlots();
@@ -79,18 +88,21 @@ const RoomPage: React.FC = () => {
                 console.log("Merged Slots:", mergedSlots);
                 setTimeSlots(mergedSlots);
                 setSelectedSlots([]);
-                setStartSlotId(null); 
+                setStartSlotId(null);
 
             } catch (err) {
                 console.error("Failed to fetch time slots or availability:", err);
                 setError("Could not load time slot availability.");
                 setTimeSlots([]);
             } finally {
-                setLoading(false); 
+                // setLoading(false); // This loading state seems tied to room data, not just availability
             }
         };
-        fetchAvailability();
-    }, [roomId, room, currentDate]); 
+        // Only fetch availability if room data is present
+        if (room) {
+            fetchAvailability();
+        }
+    }, [roomId, room, currentDate, loading, error]); // Added loading and error to dependencies to re-evaluate if they change
 
 
     const resetSelection = () => {
@@ -101,11 +113,11 @@ const RoomPage: React.FC = () => {
 
     const handleTimeSlotClick = (clickedSlotId: number) => {
         const clickedSlot = timeSlots.find(slot => slot.id === clickedSlotId);
-        if (!clickedSlot || !clickedSlot.available) return; 
+        if (!clickedSlot || !clickedSlot.available) return;
 
         if (startSlotId === null) {
             setStartSlotId(clickedSlotId);
-            setSelectedSlots([clickedSlotId]); 
+            setSelectedSlots([clickedSlotId]);
             setTimeSlots(prevSlots => prevSlots.map(slot => ({
                 ...slot,
                 selected: slot.id === clickedSlotId
@@ -148,7 +160,7 @@ const RoomPage: React.FC = () => {
                 ...slot,
                 selected: index >= rangeStart && index <= rangeEnd
             })));
-            setStartSlotId(null); 
+            setStartSlotId(null);
         }
     };
 
@@ -181,7 +193,7 @@ const RoomPage: React.FC = () => {
             roomId: room.id,
             roomNumber: room.room_number,
             date: currentDate,
-            selectedSlots: sortedSelectedIds, 
+            selectedSlots: sortedSelectedIds,
             startTime: firstSelectedSlot.start_time,
             endTime: lastSelectedSlot.end_time,
         };
@@ -208,8 +220,20 @@ const RoomPage: React.FC = () => {
     }
 
     if (!room) {
-        return <div className="error-container room-error">Room not found.</div>;
+        // This case should ideally be covered by the loading or error state if fetchRoomData fails.
+        // But as a fallback:
+        return (
+            <div className="room-page-container" style={{ backgroundImage: `url(${buildingBackground})` }}>
+                <div className="error-container room-error">
+                    <p>Room data could not be loaded.</p>
+                    <Link to="/" className="custom-button">
+                        Back to Home
+                    </Link>
+                </div>
+            </div>
+        );
     }
+
 
     let selectedTimeText = "Select a start time slot below";
     if (startSlotId !== null) {
@@ -252,7 +276,13 @@ const RoomPage: React.FC = () => {
                          </div>
                      </div>
                      <div className="room-image-container">
-                         <img className="room-body-image" src={defaultRoomImage} alt={`Study Room ${room.room_number}`} />
+                         {/* MODIFIED IMAGE SOURCE HERE */}
+                         <img
+                            className="room-body-image"
+                            src={room.image_url || PLACEHOLDER_ROOM_IMAGE_SRC}
+                            alt={`Study Room ${room.room_number}`}
+                            onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_ROOM_IMAGE_SRC; }}
+                         />
                      </div>
                 </div>
                 <div className="room-bottom-section">
@@ -284,7 +314,7 @@ const RoomPage: React.FC = () => {
                             type="button"
                             className="custom-button reserve-button"
                             onClick={handleReserveClick}
-                            disabled={selectedSlots.length === 0 || startSlotId !== null || loading} 
+                            disabled={selectedSlots.length === 0 || startSlotId !== null || loading}
                          >
                              RESERVE
                          </button>

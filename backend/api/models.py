@@ -15,6 +15,7 @@ class Student(models.Model):
 class StudyRoom(models.Model):
     room_number = models.CharField(max_length=5, unique=True)
     floor = models.CharField(max_length=5)
+    image = models.ImageField(upload_to='study_room_images/', null=True, blank=True, help_text="Image of the study room")
 
     def __str__(self):
         return f"{self.room_number} - {self.floor} Floor"
